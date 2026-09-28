@@ -13,7 +13,7 @@ PNG_1X1 = base64.b64encode(
 
 
 def override_settings() -> Settings:
-    return Settings(openai_api_key="test-key", openai_model="gpt-5-mini")
+    return Settings(ai_provider="groq", groq_api_key="test-key", groq_model="qwen/qwen3.8-27b")
 
 
 app.dependency_overrides[get_settings] = override_settings
@@ -23,7 +23,12 @@ client = TestClient(app)
 def test_health():
     response = client.get("/api/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "model": "gpt-5-mini", "configured": True}
+    assert response.json() == {
+        "status": "ok",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
+        "configured": True,
+    }
 
 
 @patch("app.main.solve_image", new_callable=AsyncMock)
@@ -40,7 +45,8 @@ def test_solve_returns_structured_result(mock_solve):
         "answer": "B. 4",
         "explanation": "2 + 2 = 4.",
         "confidence": 0.99,
-        "model": "gpt-5-mini",
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b",
     }
     mock_solve.assert_awaited_once()
 

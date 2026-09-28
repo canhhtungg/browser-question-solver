@@ -41,8 +41,9 @@ async def limit_request_size(request: Request, call_next):
 async def health(settings: Settings = Depends(get_settings)):
     return {
         "status": "ok",
-        "model": settings.openai_model,
-        "configured": bool(settings.openai_api_key),
+        "provider": settings.provider,
+        "model": settings.model,
+        "configured": settings.configured,
     }
 
 
@@ -55,7 +56,7 @@ async def solve(payload: SolveRequest, settings: Settings = Depends(get_settings
     try:
         image_url = normalize_image(payload.image, settings.max_image_bytes)
         result = await solve_image(image_url, payload.language, settings)
-        return SolveResponse(**result.model_dump(), model=settings.openai_model)
+        return SolveResponse(**result.model_dump(), provider=settings.provider, model=settings.model)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except RuntimeError as exc:

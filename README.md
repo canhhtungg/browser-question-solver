@@ -1,6 +1,6 @@
 # Browser Question Solver
 
-Tiện ích Chrome/Edge Manifest V3 cho phép khoanh vùng câu hỏi trên trang web, chụp đúng vùng đã chọn và gửi ảnh tới FastAPI chạy cục bộ. Backend dùng **OpenAI Responses API với vision** và trả về JSON có cấu trúc gồm `answer`, `explanation`, `confidence`.
+Tiện ích Chrome/Edge Manifest V3 cho phép khoanh vùng câu hỏi trên trang web, chụp đúng vùng đã chọn và gửi ảnh tới FastAPI chạy cục bộ. Backend mặc định dùng **Groq Vision** và trả về JSON có cấu trúc gồm `answer`, `explanation`, `confidence`; OpenAI vẫn là tùy chọn dự phòng.
 
 ## Tính năng
 
@@ -9,7 +9,7 @@ Tiện ích Chrome/Edge Manifest V3 cho phép khoanh vùng câu hỏi trên tran
 - Floating panel cách ly bằng Shadow DOM, có đáp án, giải thích, độ tin cậy và nút sao chép.
 - Popup kiểm tra trạng thái backend; trang Options chỉ cho phép URL `localhost`/`127.0.0.1`.
 - Timeout, lỗi API dễ hiểu, giới hạn request 8 MB và ảnh 6 MB mặc định.
-- Chỉ hỗ trợ OpenAI; model mặc định `gpt-5-mini`, đổi bằng `OPENAI_MODEL`.
+- Mặc định dùng Groq `qwen/qwen3.8-27b`; có thể đổi sang OpenAI bằng biến môi trường.
 
 ## Cấu trúc
 
@@ -32,7 +32,7 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Mở `backend/.env` và đặt `OPENAI_API_KEY`. Không truyền key qua URL, command line hoặc tiện ích.
+Mở `backend/.env` và đặt `GROQ_API_KEY`. Không truyền key qua URL, command line hoặc tiện ích.
 
 ```bash
 uvicorn app.main:app --host 127.0.0.1 --port 8000
@@ -89,9 +89,12 @@ Backend đọc các biến môi trường sau:
 
 | Biến | Mặc định | Ý nghĩa |
 |---|---:|---|
-| `OPENAI_API_KEY` | bắt buộc | API key, chỉ tồn tại ở backend |
+| `AI_PROVIDER` | `groq` | `groq` hoặc `openai` |
+| `GROQ_API_KEY` | bắt buộc khi dùng Groq | API key Groq, chỉ tồn tại ở backend |
+| `GROQ_MODEL` | `qwen/qwen3.8-27b` | Model Groq có khả năng vision |
+| `OPENAI_API_KEY` | bắt buộc khi dùng OpenAI | API key OpenAI dự phòng |
 | `OPENAI_MODEL` | `gpt-5-mini` | Model OpenAI có khả năng vision |
-| `OPENAI_TIMEOUT_SECONDS` | `45` | Timeout gọi OpenAI |
+| `AI_TIMEOUT_SECONDS` | `45` | Timeout gọi nhà cung cấp AI |
 | `MAX_REQUEST_MB` | `8` | Giới hạn request HTTP |
 | `MAX_IMAGE_MB` | `6` | Giới hạn ảnh sau decode base64 |
 

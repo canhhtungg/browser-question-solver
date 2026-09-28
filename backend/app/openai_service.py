@@ -1,5 +1,6 @@
 import base64
 import binascii
+import json
 import re
 
 from openai import AsyncOpenAI
@@ -37,14 +38,48 @@ def normalize_image(image: str, max_bytes: int) -> str:
 
 
 async def solve_image(image_url: str, language: str, settings: Settings) -> SolveResult:
-    if not settings.openai_api_key:
-        raise RuntimeError("OPENAI_API_KEY chưa được cấu hình trên backend.")
+    if settings.provider not in {"groq", "openai"}:
+        raise RuntimeError("AI_PROVIDER phải là 'groq' hoặc 'openai'.")
+    if not settings.configured:
+        required = "GROQ_API_KEY" if settings.provider == "groq" else "OPENAI_API_KEY"
+        raise RuntimeError(f"{required} chưa được cấu hình trên backend.")
 
     client = AsyncOpenAI(
-        api_key=settings.openai_api_key,
-        timeout=settings.openai_timeout_seconds,
+        api_key=settings.groq_api_key if settings.provider == "groq" else settings.openai_api_key,
+        base_url="https://api.groq.com/openai/v1" if settings.provider == "groq" else None,
+        timeout=settings.ai_timeout_seconds,
         max_retries=1,
     )
+    prompt = (
+        "Giải chính xác câu hỏi trong ảnh, kể cả công thức và các lựa chọn. "
+        f"Trả lời bằng ngôn ngữ: {language}. Nếu ảnh thiếu dữ kiện, nói rõ và giảm confidence. "
+        "Chỉ trả về JSON hợp lệ với answer (chuỗi), explanation (chuỗi), confidence (số từ 0 đến 1)."
+    )
+
+    if settings.provider == "groq":
+        completion = await client.chat.completions.create(
+            model=settings.groq_model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": {"url": image_url}},
+                    ],
+                }
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.1,
+            max_completion_tokens=2048,
+        )
+        content = completion.choices[0].message.content
+        if not content:
+            raise RuntimeError("Groq không trả về nội dung.")
+        try:
+            return SolveResult.model_validate(json.loads(content))
+        except (json.JSONDecodeError, ValueError) as exc:
+            raise RuntimeError("Groq trả về JSON không hợp lệ.") from exc
+
     response = await client.responses.parse(
         model=settings.openai_model,
         input=[
@@ -59,7 +94,7 @@ async def solve_image(image_url: str, language: str, settings: Settings) -> Solv
             {
                 "role": "user",
                 "content": [
-                    {"type": "input_text", "text": f"Giải câu hỏi trong ảnh. Ngôn ngữ trả lời: {language}."},
+                    {"type": "input_text", "text": prompt},
                     {"type": "input_image", "image_url": image_url, "detail": "high"},
                 ],
             },

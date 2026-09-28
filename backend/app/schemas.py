@@ -20,6 +20,7 @@ class SolveResult(BaseModel):
 
 
 class SolveResponse(SolveResult):
+    provider: str
     model: str
 
 
