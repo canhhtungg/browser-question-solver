@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Browser Question Solver",
+  "version": "1.0.0",
+  "description": "Khoanh vùng câu hỏi và nhận lời giải từ backend OpenAI cục bộ.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["http://localhost/*", "http://127.0.0.1/*"],
+  "background": { "service_worker": "service-worker.js" },
+  "action": {
+    "default_title": "Browser Question Solver",
+    "default_popup": "popup.html",
+    "default_icon": { "16": "assets/icon16.png", "48": "assets/icon48.png", "128": "assets/icon128.png" }
+  },
+  "commands": {
+    "start-selection": {
+      "suggested_key": { "default": "Ctrl+Shift+S", "mac": "Command+Shift+S" },
+      "description": "Khoanh vùng câu hỏi"
+    }
+  },
+  "options_ui": { "page": "options.html", "open_in_tab": true },
+  "icons": { "16": "assets/icon16.png", "48": "assets/icon48.png", "128": "assets/icon128.png" }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "browser-question-solver-extension",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && node build.mjs",
+    "icons": "node generate-icons.mjs"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.1",
+    "esbuild": "^0.25.10",
+    "typescript": "^5.9.2"
+  }
+}

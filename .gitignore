@@ -1,0 +1,22 @@
+# Secrets
+.env
+backend/.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Node / extension output
+node_modules/
+extension/dist/
+npm-debug.log*
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

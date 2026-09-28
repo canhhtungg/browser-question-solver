@@ -1,0 +1,7 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Cài đặt Question Solver</title><link rel="stylesheet" href="options.css"></head><body><main>
+<div class="eyebrow">BROWSER QUESTION SOLVER</div><h1>Cài đặt kết nối</h1><p class="lead">Tiện ích chỉ kết nối tới backend chạy trên máy này. API key không bao giờ được lưu trong trình duyệt.</p>
+<form><label>Địa chỉ backend<input id="apiUrl" type="url" required placeholder="http://127.0.0.1:8000"><small>Chỉ chấp nhận HTTP localhost hoặc 127.0.0.1.</small></label>
+<label>Ngôn ngữ trả lời<select id="language"><option value="vi">Tiếng Việt</option><option value="en">English</option></select></label>
+<div class="actions"><button type="button" id="test">Kiểm tra kết nối</button><button type="submit" class="save">Lưu cài đặt</button></div><div id="message"></div></form>
+<aside><strong>Bảo mật</strong><p>Đặt <code>OPENAI_API_KEY</code> trong môi trường của backend. Không nhập key vào trang này.</p></aside>
+</main><script src="options.js"></script></body></html>
